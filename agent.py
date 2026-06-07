@@ -108,7 +108,7 @@ _RANK_AWARE_LOW_BUDGET = 3000
 _ISSUE_CASE_BLOCK_BUDGET = 5000        # cap on the 'Issue-case' preload block (fenced code + tracebacks)
 _ACCEPTANCE_CHECKPOINTS_BUDGET = 2000  # cap on the numbered 'Acceptance checkpoints' preload block
 MAX_NO_COMMAND_REPAIRS = 2
-MAX_COMMANDS_PER_RESPONSE = 25
+MAX_COMMANDS_PER_RESPONSE = 16
 
 # Context engineering (GraphRAG / RAPTOR retrieval).
 _RETRIEVAL_CONTEXT_TOKEN_BUDGET = 8000
@@ -151,7 +151,7 @@ MAX_STEP_RETRIES = 2
 # Inner solve wall: keep below the multishot outer budget so a second
 # attempt has comparable time. Tau docker_solver enforces a hard wall of
 # max(per-task-timeout, 300s) from exec start — see multishot constants below.
-WALL_CLOCK_BUDGET_SECONDS = 248.0
+WALL_CLOCK_BUDGET_SECONDS = 260.0  # v75: expanded for deeper refinement
 WALL_CLOCK_RESERVE_SECONDS = 20.0
 _MID_LOOP_HAIL_MARY_BUDGET_FRACTION = 0.55
 # === NEW (P1 #5): Step-based mid-loop hail-mary trigger =======================
@@ -173,17 +173,17 @@ MAX_MID_LOOP_HAIL_MARY_TURNS = 2
 # loops indefinitely on a borderline patch.
 MAX_POLISH_TURNS = 1       # strip whitespace/comment/blank-only hunks
 MAX_SELF_CHECK_TURNS = 1   # ensure issue-mentioned paths are covered, no scope creep
-MAX_SYNTAX_FIX_TURNS = 1   # repair Python/TypeScript/JavaScript SyntaxError
+MAX_SYNTAX_FIX_TURNS = 2   # v75: second pass catches cascading errors
 MAX_TEST_FIX_TURNS = 2     # run+repair the authoritative test up to twice (capped
                            # by unchanged MAX_TOTAL_REFINEMENT_TURNS=3)
 MAX_BASELINE_VERIFY_TURNS = 1  # re-run originally-failing tests on patched repo; fix any still-failing
-MAX_COVERAGE_NUDGES = 1    # tell model which issue-mentioned paths are still untouched
+MAX_COVERAGE_NUDGES = 2    # v75: deeper completeness checks
 MAX_CRITERIA_NUDGES = 1    # tell model which issue acceptance-criteria look unaddressed
 MAX_FINAL_CHECKLIST_NUDGES = 1  # one mandatory pre-final per-requirement verification pass
 MAX_HAIL_MARY_TURNS = 1    # last-resort: force a real edit when patch is empty after everything
 MAX_DELETION_NUDGES = 1    # surface missing removals when issue says delete/remove but patch has none
 MAX_DESTRUCTIVE_DELETION_NUDGES = 1  # flag large unsolicited -line blocks during additive-only tasks
-MAX_TOTAL_REFINEMENT_TURNS = 3  # chained refinements blow the time budget;
+MAX_TOTAL_REFINEMENT_TURNS = 3  # v75: extra turn for completeness
                                 # cap total refinement turns across all gates (hail-mary excepted).
                                 # Raised 2→3 after fixing multishot timing bug (attempt 2 now has a
                                 # bounded budget so extra turns can't push the process past the docker
